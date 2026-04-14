@@ -1,5 +1,7 @@
 using UnityBacnet.API.Infrastructure.Auth;
 using UnityBacnet.API.Infrastructure.Http;
+using Polly;
+using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,13 +13,23 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+//Polly Policy for Retry / Timeout / Circuit Breaker
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, retryAttempt =>
+            TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
+        );
+}
+
 //Unity API Config
 builder.Services.AddTransient<UnityAuthHandler>();
-
 builder.Services.AddHttpClient<UnityAuthService>(client =>
 {
     client.BaseAddress = new Uri("https://unity-api-url/");
-}).AddHttpMessageHandler<UnityAuthHandler>();
+}).AddHttpMessageHandler<UnityAuthHandler>()
+.AddPolicyHandler(GetRetryPolicy());
 
 
 // Configure the HTTP request pipeline.
