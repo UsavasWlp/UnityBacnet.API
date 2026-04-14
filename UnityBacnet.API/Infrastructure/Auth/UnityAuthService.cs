@@ -14,9 +14,10 @@ namespace UnityBacnet.API.Infrastructure.Auth
             _httpClient = httpClient;
         }
 
-        public async Task<string> GetTokenAsync(string username, string password)
+        public async Task<string> GetTokenAsync(string username, string password,bool forceRefresh = false)
         {
-            if (!string.IsNullOrEmpty(_token) && DateTime.UtcNow < _expires)
+            //token expire check
+            if (!forceRefresh && !string.IsNullOrEmpty(_token) && DateTime.UtcNow < _expires)
             {
                 return _token;
             }
