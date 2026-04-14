@@ -1,3 +1,5 @@
+using UnityBacnet.API.Infrastructure.Auth;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +9,12 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+//Unity API Config
+builder.Services.AddHttpClient<UnityAuthService>(client =>
+{
+    client.BaseAddress = new Uri("https://unity-api-url/");
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
