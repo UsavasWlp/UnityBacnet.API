@@ -1,4 +1,5 @@
-﻿using UnityBacnet.API.Models;
+﻿using Microsoft.Extensions.Options;
+using UnityBacnet.API.Models;
 
 namespace UnityBacnet.API.Infrastructure.Auth
 {
@@ -6,15 +7,17 @@ namespace UnityBacnet.API.Infrastructure.Auth
     {
 
         private readonly HttpClient _httpClient;
+        private readonly UnityApiSettings _settings;
         private string _token;
         private DateTime _expires;
 
-        public UnityAuthService(HttpClient httpClient)
+        public UnityAuthService(HttpClient httpClient,IOptions<UnityApiSettings> options)
         {
             _httpClient = httpClient;
+            _settings = options.Value;
         }
 
-        public async Task<string> GetTokenAsync(string username, string password,bool forceRefresh = false)
+        public async Task<string> GetTokenAsync(bool forceRefresh = false)
         {
             //token expire check
             if (!forceRefresh && !string.IsNullOrEmpty(_token) && DateTime.UtcNow < _expires)
@@ -24,8 +27,8 @@ namespace UnityBacnet.API.Infrastructure.Auth
 
             var request = new
             {
-                username,
-                password
+                username = _settings.Username,
+                password = _settings.Password
             };
 
             var response = await _httpClient.PostAsJsonAsync(

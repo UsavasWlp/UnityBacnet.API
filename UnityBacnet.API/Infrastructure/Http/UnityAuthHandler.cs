@@ -19,7 +19,7 @@ namespace UnityBacnet.API.Infrastructure.Http
      HttpRequestMessage request,
      CancellationToken cancellationToken)
         {
-            var token = await _authService.GetTokenAsync("test", "test");
+            var token = await _authService.GetTokenAsync();
 
             request.Headers.Authorization =
                 new AuthenticationHeaderValue("Bearer", token);
@@ -32,7 +32,7 @@ namespace UnityBacnet.API.Infrastructure.Http
                 _logger.LogWarning("Unauthorized response received. Attempting token refresh...");
 
                 // Get new token
-                var newToken = await _authService.GetTokenAsync("test", "test", true);
+                var newToken = await _authService.GetTokenAsync(true);
 
                 request.Headers.Authorization =
                     new AuthenticationHeaderValue("Bearer", newToken);
