@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UnityBacnet.API.Models;
+using UnityBacnet.API.Models.DTOs;
 using UnityBacnet.API.Services;
 
 namespace UnityBacnet.API.Controllers
@@ -10,26 +11,31 @@ namespace UnityBacnet.API.Controllers
     public class UnityController : Controller
     {
         private readonly UnityApiService _api;
-        public UnityController(UnityApiService api)
-        {
-            _api = api;
-        }
 
-        [HttpPost("send-test")]
-        public async Task<IActionResult> SendTest()
+        [HttpPost("send")]
+        public async Task<IActionResult> Send(SendReadingRequest request)
         {
-            var sample = new UnityAssetReading
+            if (!ModelState.IsValid)
             {
-                AssetId = 1001,
-                AssetType = "HVAC",
-                Value = 23.5,
-                ReadingType = "Temperature",
-                HasAlarm = false
+                return BadRequest(ModelState);
+            }
+
+            var reading = new UnityAssetReading
+            {
+                AssetId = request.AssetId,
+                AssetType = request.AssetType,
+                Value = request.Value,
+                ReadingType = request.ReadingType,
+                HasAlarm = request.HasAlarm
             };
 
-            await _api.SendReadingAsync(sample);
+            await _api.SendReadingAsync(reading);
 
-            return Ok("Sent");
+            return Ok(new UnityApiResponse
+            {
+                Success = true,
+                Message = "Reading sent successfully"
+            });
         }
     }
 }

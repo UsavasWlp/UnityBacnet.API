@@ -17,7 +17,7 @@ namespace UnityBacnet.API.Controllers
         [HttpGet("token")]
         public async Task<IActionResult> GetToken()
         {
-            var token = await _authService.GetTokenAsync("test", "test");
+            var token = await _authService.GetTokenAsync();
             return Ok(token);
         }
     }

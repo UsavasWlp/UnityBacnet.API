@@ -35,7 +35,12 @@ builder.Services.AddHttpClient<UnityAuthService>(client =>
 }).AddHttpMessageHandler<UnityAuthHandler>()
 .AddPolicyHandler(GetRetryPolicy());
 
-
+//Global Validation
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.SuppressModelStateInvalidFilter = false;
+    });
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
